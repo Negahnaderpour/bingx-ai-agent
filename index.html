@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#070b14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>BingX AI Agent Pro</title>
+<link rel="manifest" href="data:application/json,{%22name%22:%22BingX+AI+Agent%22,%22short_name%22:%22AI+Trader%22,%22display%22:%22standalone%22,%22background_color%22:%22%23070b14%22,%22theme_color%22:%22%23070b14%22}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070b14;--s1:#0d1220;--s2:#111827;--s3:#1a2236;
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.12);
+  --t:#e2e8f0;--m:#64748b;
+  --g:#10b981;--r:#f43f5e;--y:#f59e0b;--bl:#3b82f6;--p:#8b5cf6;--c:#06b6d4;
+  --gd:linear-gradient(135deg,#3b82f6,#8b5cf6);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--t);font-family:'Segoe UI',Tahoma,sans-serif;font-size:13px;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+/* ─── LOGIN ─── */
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;background:radial-gradient(ellipse at 30% 40%,rgba(59,130,246,.1),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(139,92,246,.07),transparent 55%),var(--bg)}
+.lcard{width:380px;background:var(--s1);border:1px solid var(--b2);border-radius:20px;padding:36px;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+.llogo{text-align:center;margin-bottom:24px}
+.llogo .ic{font-size:50px;display:block;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(59,130,246,.5))}
+.llogo h1{font-size:20px;font-weight:800;background:var(--gd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.llogo p{color:var(--m);font-size:11px;margin-top:3px}
+.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 13px;margin-bottom:20px;font-size:11px;color:#fcd34d;line-height:1.7}
+.fg{margin-bottom:13px}
+.fg label{display:block;color:var(--m);font-size:11px;margin-bottom:5px}
+.fg input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:9px;padding:10px 13px;color:var(--t);font-size:13px;outline:none;direction:ltr;transition:border-color .2s}
+.fg input:focus{border-color:var(--bl)}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.tog{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--bl)}
+.tok{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tog.on .tok{left:21px}
+.bprim{width:100%;padding:12px;background:var(--gd);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:opacity .2s}
+.bprim:hover{opacity:.9}
+/* ─── HEADER ─── */
+#hdr{background:var(--s1);border-bottom:1px solid var(--b);padding:0 14px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:50}
+.hl{display:flex;align-items:center;gap:8px}
+.hl h1{font-size:15px;font-weight:800;background:var(--gd);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700}
+.bdemo{background:rgba(245,158,11,.15);color:#fcd34d}
+.blive{background:rgba(16,185,129,.15);color:var(--g)}
+.bkill{background:rgba(244,63,94,.2);color:var(--r);animation:pulse 1.5s infinite}
+.hr{display:flex;align-items:center;gap:8px}
+.ks-btn{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:7px;border:1px solid rgba(244,63,94,.35);background:rgba(244,63,94,.06);color:var(--r);transition:all .2s}
+.ks-btn.active{background:rgba(244,63,94,.18);border-color:var(--r)}
+.auto-tog{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--m);cursor:pointer}
+/* ─── TABS ─── */
+#tabs{background:var(--s1);border-bottom:1px solid var(--b);display:flex;overflow-x:auto;flex-shrink:0}
+#tabs::-webkit-scrollbar{height:0}
+.tab{padding:12px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--m);font-size:12px;cursor:pointer;white-space:nowrap;transition:color .2s}
+.tab.on{color:var(--bl);border-bottom-color:var(--bl);font-weight:700}
+/* ─── LAYOUT ─── */
+#app{display:none;flex-direction:column;height:100vh}
+#body{flex:1;overflow-y:auto;padding:12px}
+.page{display:none}
+.page.on{display:block}
+/* ─── CARDS ─── */
+.card{background:var(--s1);border:1px solid var(--b);border-radius:13px;padding:15px}
+.card+.card{margin-top:11px}
+.ct{font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;color:var(--t)}
+/* ─── GRID ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.span2{grid-column:span 2}
+.spanf{grid-column:1/-1}
+/* ─── TICKER ─── */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-bottom:12px}
+.tc{background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:9px 11px;cursor:pointer;transition:all .2s}
+.tc.sel{border-color:var(--bl);background:rgba(59,130,246,.09)}
+.ts{font-size:10px;color:var(--m);margin-bottom:2px}
+.tp{font-size:13px;font-weight:700}
+.tch{font-size:10px;margin-top:1px}
+/* ─── CONTROLS ─── */
+.ctrl{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+select,.cbtn{background:var(--s2);border:1px solid var(--b);border-radius:7px;color:var(--t);padding:7px 10px;font-size:11px;outline:none;cursor:pointer}
+.abtn{background:var(--gd);border:none;border-radius:8px;color:#fff;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;margin-right:auto;transition:opacity .2s}
+.abtn:disabled{opacity:.45;cursor:not-allowed}
+/* ─── ACTION BADGE ─── */
+.ab{display:inline-block;padding:4px 12px;border-radius:7px;font-weight:800;font-size:12px}
+.BUY{background:rgba(16,185,129,.15);color:var(--g);border:1px solid rgba(16,185,129,.3)}
+.SELL{background:rgba(244,63,94,.15);color:var(--r);border:1px solid rgba(244,63,94,.3)}
+.HOLD{background:rgba(100,116,139,.12);color:var(--m);border:1px solid rgba(100,116,139,.25)}
+/* ─── STAT ROW ─── */
+.sr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--b);font-size:12px}
+.sr:last-child{border:none}
+.sl{color:var(--m)}
+/* ─── PROGRESS BAR ─── */
+.pb{background:rgba(255,255,255,.07);border-radius:3px;height:4px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px;transition:width .5s}
+/* ─── CHART CONTAINER ─── */
+.chart-wrap{position:relative;height:220px;margin-bottom:4px}
+.chart-mini{position:relative;height:80px}
+/* ─── DECISION BOX ─── */
+.dbox{border-radius:12px;padding:16px;display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.dact{font-size:34px;font-weight:900;min-width:70px;text-align:center}
+.dmeta{flex:1;min-width:160px}
+.tpsl{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tpsl-i{background:rgba(255,255,255,.04);border-radius:7px;padding:7px 9px}
+.tpsl-l{font-size:10px;color:var(--m);margin-bottom:2px}
+.tpsl-v{font-size:12px;font-weight:700}
+/* ─── REGIME ─── */
+.reg-panel{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.reg-big{font-size:26px;font-weight:900}
+.reg-info{flex:1;min-width:140px}
+.reg-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.reg-s{text-align:center;background:var(--s2);border-radius:8px;padding:8px}
+.reg-s .v{font-size:18px;font-weight:800;margin-top:2px}
+.reg-s .l{font-size:10px;color:var(--m)}
+/* ─── SCAN ─── */
+.srow{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s2);border:1px solid var(--b);border-radius:9px;flex-wrap:wrap;cursor:pointer;transition:border-color .15s;margin-bottom:7px}
+.srow:hover{border-color:rgba(59,130,246,.4)}
+/* ─── BACKTEST ─── */
+.bt-stat{text-align:center;background:var(--s2);border-radius:9px;padding:12px}
+.bt-stat .v{font-size:20px;font-weight:800;margin-top:3px}
+.bt-stat .l{font-size:10px;color:var(--m)}
+/* ─── TRADE ROW ─── */
+.trow2{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--s2);border:1px solid var(--b);border-radius:9px;flex-wrap:wrap;margin-bottom:7px}
+/* ─── LOG ─── */
+.log{background:#050810;border-radius:9px;padding:12px;height:400px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px}
+.le{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.lt{color:#334155;margin-left:6px}
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast-msg{background:var(--s1);border:1px solid var(--b2);border-radius:9px;padding:9px 16px;font-size:12px;animation:fadeIn .3s;max-width:320px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+/* ─── PORTFOLIO ─── */
+.port-stat{text-align:center;padding:14px;background:var(--s2);border-radius:10px}
+.port-stat .v{font-size:22px;font-weight:800}
+.port-stat .l{font-size:10px;color:var(--m);margin-top:3px}
+/* ─── ANIMATIONS ─── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.pulse{animation:pulse 2s infinite}
+/* ─── RESPONSIVE ─── */
+@media(max-width:540px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .span2,.spanf{grid-column:span 1}
+  .dbox{flex-direction:column}
+  .tpsl{grid-template-columns:1fr 1fr}
+  .lcard{width:96vw;padding:24px 18px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login">
+  <div class="lcard">
+    <div class="llogo">
+      <span class="ic">🤖</span>
+      <h1>BingX AI Agent Pro</h1>
+      <p>ایجنت حرفه‌ای با تشخیص رژیم + ۳ استراتژی + Kill Switch</p>
+    </div>
+    <div class="warn">⚠️ ابزار آموزشی است. ترید کریپتو ریسک بالا دارد. هیچ سودی تضمین نمی‌شود. ابتدا در دمو تست کنید.</div>
+    <div class="fg"><label>BingX API Key</label><input id="ak" placeholder="اختیاری در حالت دمو" /></div>
+    <div class="fg"><label>Secret Key</label><input id="sk" type="password" placeholder="اختیاری در حالت دمو" /></div>
+    <div class="trow">
+      <span style="font-size:12px;color:var(--m)">🎮 حالت دمو (بدون API)</span>
+      <div class="tog on" id="dTog" onclick="S.demo=!S.demo;this.classList.toggle('on',S.demo)"><div class="tok"></div></div>
+    </div>
+    <button class="bprim" onclick="connect()">🚀 ورود به ایجنت</button>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <!-- Header -->
+  <div id="hdr">
+    <div class="hl">
+      <span style="font-size:18px;filter:drop-shadow(0 0 8px rgba(59,130,246,.6))">🤖</span>
+      <h1>BingX AI Agent Pro</h1>
+      <span class="badge bdemo" id="modeBadge">DEMO</span>
+      <span class="badge bkill" id="killBadge" style="display:none">⛔ KILL</span>
+    </div>
+    <div class="hr">
+      <div class="ks-btn" id="ksbtn" onclick="toggleKS()">⛔ Kill Switch</div>
+      <div class="auto-tog" onclick="toggleAuto()">
+        <span id="autoLabel" style="color:var(--m)">Auto</span>
+        <div class="tog" id="autoTog"><div class="tok"></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div id="tabs">
+    <button class="tab on" onclick="show('dash')">📊 داشبورد</button>
+    <button class="tab" onclick="show('scanner')">🔭 اسکنر</button>
+    <button class="tab" onclick="show('backtest')">🧪 Backtest</button>
+    <button class="tab" onclick="show('portfolio')">💼 پورتفولیو</button>
+    <button class="tab" onclick="show('strategy')">⚙️ استراتژی</button>
+    <button class="tab" onclick="show('risk')">🛡️ ریسک</button>
+    <button class="tab" onclick="show('logs')">📝 لاگ</button>
+  </div>
+  <!-- Body -->
+  <div id="body">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="p-dash" class="page on">
+      <div class="tg" id="tkGrid"></div>
+      <div class="ctrl">
+        <select id="pairSel" onchange="onPair()"></select>
+        <select id="ivSel">
+          <option value="1m">1m</option><option value="5m">5m</option>
+          <option value="15m">15m</option><option value="1h" selected>1h</option>
+          <option value="4h">4h</option><option value="1d">1d</option>
+        </select>
+        <select id="riskSel">
+          <option value="1">ریسک ۱٪ (محافظه‌کار)</option>
+          <option value="2" selected>ریسک ۲٪ (متوسط)</option>
+          <option value="3">ریسک ۳٪ (تهاجمی)</option>
+        </select>
+        <button class="abtn" id="aBtn" onclick="runAI()">🤖 تحلیل هوش مصنوعی</button>
+      </div>
+
+      <!-- Chart -->
+      <div class="card" style="margin-bottom:11px">
+        <div class="ct">📈 نمودار زنده — <span id="chartPairLabel">BTC-USDT</span></div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+        <div style="display:flex;gap:14px;font-size:11px;color:var(--m);margin-top:6px">
+          <span>قیمت: <b id="curPrice" style="color:var(--t)">—</b></span>
+          <span>تغییر ۲۴h: <b id="chg24" style="color:var(--t)">—</b></span>
+          <span>حجم: <b id="curVol" style="color:var(--t)">—</b></span>
+        </div>
+      </div>
+
+      <!-- Regime -->
+      <div class="card" id="regCard" style="margin-bottom:11px;display:none">
+        <div class="ct">🧠 رژیم بازار — تشخیص خودکار</div>
+        <div class="reg-panel">
+          <div>
+            <div style="font-size:10px;color:var(--m);margin-bottom:3px">وضعیت فعلی</div>
+            <div class="reg-big" id="regBig">—</div>
+          </div>
+          <div class="reg-info">
+            <div style="font-size:10px;color:var(--m);margin-bottom:3px">استراتژی فعال</div>
+            <div id="regStrat" style="font-size:12px;font-weight:600">—</div>
+            <div id="regDesc" style="font-size:11px;color:var(--m);margin-top:5px;line-height:1.6">—</div>
+          </div>
+        </div>
+        <div class="reg-stat">
+          <div class="reg-s"><div class="l">ADX (قدرت روند)</div><div class="v" id="adxV">—</div></div>
+          <div class="reg-s"><div class="l">نوسان‌پذیری</div><div class="v" id="volV">—</div></div>
+          <div class="reg-s"><div class="l">Volume Spike</div><div class="v" id="vspikeV">—</div></div>
+        </div>
+      </div>
+
+      <!-- Decision -->
+      <div class="card" id="decCard" style="display:none;margin-bottom:11px">
+        <div class="ct">🤖 تصمیم هوش مصنوعی</div>
+        <div class="dbox" id="dbox">
+          <div style="text-align:center">
+            <div class="dact" id="dact">—</div>
+            <div style="font-size:10px;color:var(--m);margin-top:4px">اطمینان</div>
+            <div class="pb" style="width:70px;margin:5px auto 0"><div class="pf" id="confBar" style="width:0;background:var(--g)"></div></div>
+            <div style="font-size:12px;font-weight:700;margin-top:3px" id="confPct">0%</div>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <p style="font-size:12px;color:#cbd5e1;line-height:1.7;margin-bottom:8px" id="aiReas">—</p>
+            <p style="font-size:11px;color:var(--r)" id="aiRisk">—</p>
+          </div>
+          <div class="tpsl">
+            <div class="tpsl-i"><div class="tpsl-l">💰 ورود</div><div class="tpsl-v" id="tEntry">—</div></div>
+            <div class="tpsl-i"><div class="tpsl-l">🛑 حد ضرر</div><div class="tpsl-v" style="color:var(--r)" id="tSL">—</div></div>
+            <div class="tpsl-i"><div class="tpsl-l">🎯 هدف ۱</div><div class="tpsl-v" style="color:var(--g)" id="tTP1">—</div></div>
+            <div class="tpsl-i"><div class="tpsl-l">🎯 هدف ۲</div><div class="tpsl-v" style="color:var(--c)" id="tTP2">—</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px">
+          <span style="color:var(--m)">R:R <b id="rrV" style="color:var(--t)">—</b></span>
+          <span style="color:var(--m)">پوزیشن <b id="posV" style="color:var(--y)">—</b></span>
+          <span style="color:var(--m)">کارمزد <b id="feeV" style="color:var(--r)">—</b></span>
+          <span style="color:var(--m)">Expectancy <b id="expV" style="color:var(--g)">—</b></span>
+          <button id="execBtn" onclick="execTrade()" style="display:none;margin-right:auto;padding:7px 16px;background:var(--g);border:none;border-radius:7px;color:#fff;font-size:12px;cursor:pointer;font-weight:700">⚡ اجرا</button>
+        </div>
+      </div>
+
+      <!-- Whale + Sentiment -->
+      <div class="g2" id="whaleSentRow" style="display:none;margin-bottom:11px">
+        <div class="card">
+          <div class="ct">🐋 فعالیت نهنگ‌ها</div>
+          <div id="whaleC">—</div>
+        </div>
+        <div class="card">
+          <div class="ct">📰 سنتیمنت بازار</div>
+          <div id="sentC">—</div>
+        </div>
+      </div>
+
+      <!-- Technical + Scores -->
+      <div class="card" id="techCard" style="display:none;margin-bottom:11px">
+        <div class="ct">📐 اندیکاتورهای تکنیکال</div>
+        <div id="techGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px"></div>
+      </div>
+      <div class="card" id="scoreCard" style="display:none">
+        <div class="ct">⭐ امتیاز چندبعدی</div>
+        <div id="scoreGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
+      </div>
+
+      <div id="emptyDash" style="text-align:center;padding:50px 20px;color:var(--m)">
+        <div style="font-size:48px;margin-bottom:12px">🤖</div>
+        <p style="font-size:13px">یه ارز انتخاب کن و روی «تحلیل هوش مصنوعی» کلیک کن</p>
+        <p style="font-size:11px;margin-top:6px;color:#475569">نمودار زنده بالا رو ببین — هر ۲ ثانیه آپدیت می‌شه</p>
+      </div>
+    </div>
+
+    <!-- ── SCANNER ── -->
+    <div id="p-scanner" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:700">🔭 اسکنر بازار</div>
+        <button class="abtn" id="scanBtn" onclick="runScan()" style="margin-right:0">اسکن همه ارزها</button>
+      </div>
+      <div id="scanRes"></div>
+    </div>
+
+    <!-- ── BACKTEST ── -->
+    <div id="p-backtest" class="page">
+      <div class="card" style="margin-bottom:11px">
+        <div class="ct">🧪 تنظیمات Backtest</div>
+        <div class="g3" style="margin-bottom:12px">
+          <div class="fg"><label>ارز</label><select id="btPair" style="width:100%;background:var(--s2);border:1px solid var(--b);border-radius:7px;color:var(--t);padding:8px;outline:none"></select></div>
+          <div class="fg"><label>استراتژی</label>
+            <select id="btStrat" style="width:100%;background:var(--s2);border:1px solid var(--b);border-radius:7px;color:var(--t);padding:8px;outline:none">
+              <option value="trend">Trend Following</option>
+              <option value="reversion">Mean Reversion</option>
+              <option value="breakout">Breakout</option>
+              <option value="auto">Auto (Regime)</option>
+            </select>
+          </div>
+          <div class="fg"><label>تعداد کندل (شبیه‌سازی)</label>
+            <select id="btPeriod" style="width:100%;background:var(--s2);border:1px solid var(--b);border-radius:7px;color:var(--t);padding:8px;outline:none">
+              <option value="100">۱۰۰ کندل</option>
+              <option value="200" selected>۲۰۰ کندل</option>
+              <option value="500">۵۰۰ کندل</option>
+            </select>
+          </div>
+        </div>
+        <button class="abtn" id="btBtn" onclick="runBacktest()" style="margin-right:0">🧪 اجرای Backtest</button>
+      </div>
+      <div id="btResult" style="display:none">
+        <div class="g4" style="margin-bottom:11px" id="btStats"></div>
+        <div class="card" style="margin-bottom:11px">
+          <div class="ct">📈 منحنی سرمایه (Equity Curve)</div>
+          <div class="chart-wrap"><canvas id="btChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct">📋 آخرین معاملات Backtest</div>
+          <div id="btTrades" style="max-height:250px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PORTFOLIO ── -->
+    <div id="p-portfolio" class="page">
+      <div class="g4" style="margin-bottom:11px" id="portStats"></div>
+      <div class="g2" style="margin-bottom:11px">
+        <div class="card">
+          <div class="ct">📈 منحنی P&L</div>
+          <div class="chart-wrap"><canvas id="pnlChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct">🎯 آمار معاملات</div>
+          <div id="portDetail"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">📋 تاریخچه معاملات</div>
+        <div id="tradeList" style="max-height:300px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- ── STRATEGY ── -->
+    <div id="p-strategy" class="page">
+      <div class="g3" style="margin-bottom:11px">
+        <div class="card">
+          <div class="ct" style="color:var(--c)">📈 Trend Following</div>
+          <div class="sr"><span class="sl">روش</span><span>EMA 9/21 Crossover</span></div>
+          <div class="sr"><span class="sl">تأیید</span><span>MACD Histogram</span></div>
+          <div class="sr"><span class="sl">شرط</span><span>ADX &gt; 25</span></div>
+          <div class="sr"><span class="sl">SL</span><span>ATR × 1.5</span></div>
+          <div class="sr"><span class="sl">TP</span><span>ATR × 2 و ATR × 3</span></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--m);line-height:1.7;background:var(--s2);padding:9px;border-radius:7px">وقتی EMA9 از بالا EMA21 رو قطع کنه + MACD مثبت باشه → BUY<br>وقتی از پایین قطع کنه + MACD منفی باشه → SELL</div>
+        </div>
+        <div class="card">
+          <div class="ct" style="color:var(--y)">🔄 Mean Reversion</div>
+          <div class="sr"><span class="sl">روش</span><span>Bollinger Bands</span></div>
+          <div class="sr"><span class="sl">تأیید</span><span>RSI (30/70)</span></div>
+          <div class="sr"><span class="sl">شرط</span><span>ADX &lt; 20</span></div>
+          <div class="sr"><span class="sl">SL</span><span>ATR × 1.5</span></div>
+          <div class="sr"><span class="sl">TP</span><span>میانه بولینگر (BB Mid)</span></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--m);line-height:1.7;background:var(--s2);padding:9px;border-radius:7px">قیمت ≤ BB Lower + RSI &lt; 32 → BUY<br>قیمت ≥ BB Upper + RSI &gt; 68 → SELL<br>بازار رنج — انتظار بازگشت به میانگین</div>
+        </div>
+        <div class="card">
+          <div class="ct" style="color:var(--p)">💥 Breakout</div>
+          <div class="sr"><span class="sl">روش</span><span>Volume + BB Break</span></div>
+          <div class="sr"><span class="sl">تأیید</span><span>Volume Spike &gt; 2×</span></div>
+          <div class="sr"><span class="sl">شرط</span><span>رنج → شکست</span></div>
+          <div class="sr"><span class="sl">SL</span><span>ATR × 2 (فاصله بیشتر)</span></div>
+          <div class="sr"><span class="sl">TP</span><span>ATR × 3 و ATR × 5</span></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--m);line-height:1.7;background:var(--s2);padding:9px;border-radius:7px">شکست BB Upper با حجم بالا → BUY<br>شکست BB Lower با حجم بالا → SELL<br>⚠️ بدون حجم = Fakeout احتمالی</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">🧠 منطق تشخیص رژیم (Regime Detection Engine)</div>
+        <div style="font-size:12px;line-height:2;color:var(--m)">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="background:rgba(6,182,212,.15);color:var(--c);padding:2px 8px;border-radius:5px;font-size:11px;white-space:nowrap">ADX &gt; 25</span><span>→ رژیم <b style="color:var(--c)">TREND</b> → استراتژی Trend Following فعال</span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="background:rgba(245,158,11,.15);color:var(--y);padding:2px 8px;border-radius:5px;font-size:11px;white-space:nowrap">ADX &lt; 20</span><span>→ رژیم <b style="color:var(--y)">RANGE</b> → استراتژی Mean Reversion فعال</span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="background:rgba(139,92,246,.15);color:var(--p);padding:2px 8px;border-radius:5px;font-size:11px;white-space:nowrap">Vol &gt; 2×</span><span>→ رژیم <b style="color:var(--p)">BREAKOUT</b> → استراتژی Breakout فعال</span></div>
+          <div style="display:flex;gap:8px;align-items:center"><span style="background:rgba(244,63,94,.15);color:var(--r);padding:2px 8px;border-radius:5px;font-size:11px;white-space:nowrap">Volatility &gt; 80٪</span><span>→ رژیم <b style="color:var(--r)">VOLATILE</b> → Kill Switch هشدار می‌دهد</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RISK ── -->
+    <div id="p-risk" class="page">
+      <div class="g2" style="margin-bottom:11px">
+        <div class="card">
+          <div class="ct">🛡️ پارامترهای ریسک</div>
+          <div class="sr"><span class="sl">ریسک هر معامله</span><span id="rp1">۲٪ سرمایه</span></div>
+          <div class="sr"><span class="sl">ماکس ضرر روزانه</span><span style="color:var(--r)">۶٪ سرمایه</span></div>
+          <div class="sr"><span class="sl">ماکس ضرر متوالی</span><span style="color:var(--r)">۳ معامله</span></div>
+          <div class="sr"><span class="sl">هدف R:R</span><span style="color:var(--g)">۱:۲ تا ۱:۳</span></div>
+          <div class="sr"><span class="sl">نوع Stop Loss</span><span>ATR داینامیک (×1.5)</span></div>
+          <div class="sr"><span class="sl">Overtrading Protection</span><span style="color:var(--g)">✅ فعال</span></div>
+          <div class="sr"><span class="sl">کارمزد BingX</span><span>0.05٪ × ۲ طرف</span></div>
+          <div class="sr"><span class="sl">Positive Expectancy هدف</span><span style="color:var(--g)">&gt; 0</span></div>
+        </div>
+        <div class="card">
+          <div class="ct" style="color:var(--r)">⛔ وضعیت Kill Switch</div>
+          <div style="background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.2);border-radius:9px;padding:12px">
+            <div class="sr"><span class="sl">ضرر متوالی</span><span id="ksC">0 / 3</span></div>
+            <div class="sr"><span class="sl">ضرر روزانه</span><span id="ksD">0٪</span></div>
+            <div class="sr"><span class="sl">نوسانات</span><span id="ksVol">عادی</span></div>
+            <div class="sr"><span class="sl">وضعیت کلی</span><span id="ksOv" style="color:var(--g)">✅ ایمن</span></div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--m);line-height:1.7">Kill Switch در صورت: ۳ ضرر متوالی، یا ضرر روزانه &gt; ۶٪، یا نوسانات &gt; ۸۰٪ — به‌طور خودکار فعال می‌شود.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">📐 فرمول‌های محاسباتی</div>
+        <div style="background:#050810;border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:11px;color:var(--m);line-height:2.1">
+          <span style="color:var(--c)">ATR Stop</span> = ATR(14) × 1.5<br>
+          <span style="color:var(--c)">Risk Amount</span> = Capital × Risk% / 100<br>
+          <span style="color:var(--c)">Position Size</span> = Risk Amount / ATR Stop<br>
+          <span style="color:var(--c)">Fee</span> = Position × Entry × 0.001 (0.05% × 2 sides)<br>
+          <span style="color:var(--c)">R:R</span> = (TP1 - Entry) / (Entry - SL)<br>
+          <span style="color:var(--c)">Expectancy</span> = (Win% × Avg Win) - (Loss% × Avg Loss)<br>
+          <span style="color:var(--y)">⚠️ اگر Fee &gt; 10% سود انتظاری → معامله لغو (Overtrading Protection)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOGS ── -->
+    <div id="p-logs" class="page">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700">📝 لاگ ایجنت</div>
+        <button onclick="document.getElementById('logBox').innerHTML=''" style="background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:6px;color:var(--m);padding:4px 10px;font-size:11px;cursor:pointer">پاک کردن</button>
+      </div>
+      <div class="log" id="logBox"></div>
+    </div>
+
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const PAIRS=['BTC-USDT','ETH-USDT','SOL-USDT','BNB-USDT','XRP-USDT','ADA-USDT','DOGE-USDT','AVAX-USDT','MATIC-USDT','LINK-USDT'];
+const BASE={'BTC-USDT':67000,'ETH-USDT':3400,'SOL-USDT':172,'BNB-USDT':610,'XRP-USDT':0.52,'ADA-USDT':0.45,'DOGE-USDT':0.16,'AVAX-USDT':38,'MATIC-USDT':0.72,'LINK-USDT':14.5};
+const S={demo:true,apiKey:'',capital:1000,trades:[],pnlHistory:[1000],consLoss:0,dailyLoss:0,killSwitch:false,autoTrade:false,currentAI:null,prices:{},prevPrices:{},chartData:{}};
+let mainChartInst=null,btChartInst=null,pnlChartInst=null;
+let currentTab='dash';
+
+// ══════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════
+function connect(){
+  S.apiKey=document.getElementById('ak').value;
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('modeBadge').textContent=S.demo?'DEMO':'LIVE';
+  document.getElementById('modeBadge').className='badge '+(S.demo?'bdemo':'blive');
+  init();
+  log('ایجنت راه‌اندازی شد — '+(S.demo?'حالت دمو':'حالت واقعی'),'success');
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function init(){
+  // populate selects
+  ['pairSel','btPair'].forEach(id=>{
+    const s=document.getElementById(id); if(!s)return;
+    PAIRS.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;s.appendChild(o);});
+  });
+  // init prices & chart data
+  PAIRS.forEach(p=>{
+    S.prices[p]=BASE[p];S.prevPrices[p]=BASE[p];
+    S.chartData[p]={closes:[],volumes:[],labels:[]};
+    // seed with 60 candles
+    let pr=BASE[p];
+    for(let i=60;i>0;i--){
+      pr*=(1+(Math.random()-.49)*.012);
+      S.chartData[p].closes.push(pr);
+      S.chartData[p].volumes.push(Math.random()*1000+200);
+      S.chartData[p].labels.push(fmtTime(new Date(Date.now()-i*60000)));
+    }
+  });
+  buildTickers();
+  initMainChart('BTC-USDT');
+  setInterval(tick,2000);
+  renderPortfolio();
+  updateKSDisplay();
+}
+
+function fmtTime(d){return d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});}
+
+// ══════════════════════════════════════════════════
+// PRICE TICK
+// ══════════════════════════════════════════════════
+function tick(){
+  const pair=document.getElementById('pairSel')?.value||'BTC-USDT';
+  PAIRS.forEach(p=>{
+    S.prevPrices[p]=S.prices[p];
+    S.prices[p]*=(1+(Math.random()-.49)*.0018);
+    const cd=S.chartData[p];
+    cd.closes.push(S.prices[p]);
+    cd.volumes.push(Math.random()*800+150);
+    cd.labels.push(fmtTime(new Date()));
+    if(cd.closes.length>80){cd.closes.shift();cd.volumes.shift();cd.labels.shift();}
+    const te=document.getElementById('tp-'+p),ce=document.getElementById('tc-'+p);
+    if(te)te.textContent='$'+S.prices[p].toLocaleString(undefined,{maximumFractionDigits:4});
+    if(ce){const pct=((S.prices[p]-S.prevPrices[p])/S.prevPrices[p]*100);ce.textContent=(pct>=0?'+':'')+pct.toFixed(3)+'%';ce.style.color=pct>=0?'var(--g)':'var(--r)';}
+  });
+  // update main chart if on dashboard
+  if(currentTab==='dash'&&mainChartInst){
+    const cd=S.chartData[pair];
+    mainChartInst.data.labels=cd.labels;
+    mainChartInst.data.datasets[0].data=cd.closes;
+    mainChartInst.update('none');
+    // price info
+    const cur=S.prices[pair],prev=S.prevPrices[pair];
+    const chg=((cur-prev)/prev*100);
+    const pe=document.getElementById('curPrice');if(pe)pe.textContent='$'+cur.toLocaleString(undefined,{maximumFractionDigits:4});
+    const ce=document.getElementById('chg24');if(ce){ce.textContent=(chg>=0?'+':'')+chg.toFixed(3)+'%';ce.style.color=chg>=0?'var(--g)':'var(--r)';}
+    const ve=document.getElementById('curVol');if(ve)ve.textContent=(cd.volumes.slice(-1)[0]||0).toFixed(0)+' USDT';
+  }
+  // auto trade
+  if(S.autoTrade&&!S.killSwitch&&Math.random()<.04){
+    runAI(true);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// TICKERS
+// ══════════════════════════════════════════════════
+function buildTickers(){
+  const g=document.getElementById('tkGrid');g.innerHTML='';
+  PAIRS.slice(0,8).forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='tc'+(i===0?' sel':'');d.id='tick-'+p;
+    d.onclick=()=>{document.querySelectorAll('.tc').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');document.getElementById('pairSel').value=p;document.getElementById('chartPairLabel').textContent=p;initMainChart(p);};
+    d.innerHTML=`<div class="ts">${p}</div><div class="tp" id="tp-${p}">$${S.prices[p].toLocaleString(undefined,{maximumFractionDigits:4})}</div><div class="tch" id="tc-${p}" style="color:var(--m)">—</div>`;
+    g.appendChild(d);
+  });
+}
+function onPair(){
+  const p=document.getElementById('pairSel').value;
+  document.querySelectorAll('.tc').forEach(x=>x.classList.remove('sel'));
+  const t=document.getElementById('tick-'+p);if(t)t.classList.add('sel');
+  document.getElementById('chartPairLabel').textContent=p;
+  initMainChart(p);
+}
+
+// ══════════════════════════════════════════════════
+// MAIN CHART
+// ══════════════════════════════════════════════════
+function initMainChart(pair){
+  const ctx=document.getElementById('mainChart');
+  if(!ctx)return;
+  if(mainChartInst){mainChartInst.destroy();}
+  const cd=S.chartData[pair];
+  const closes=cd.closes;
+  const ema20=closes.map((_,i)=>i<20?null:calcEMA(closes.slice(0,i+1),20));
+  mainChartInst=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:cd.labels,
+      datasets:[
+        {label:'قیمت',data:closes,borderColor:'#3b82f6',borderWidth:1.5,pointRadius:0,fill:false,tension:.2},
+        {label:'EMA20',data:ema20,borderColor:'rgba(245,158,11,.7)',borderWidth:1,pointRadius:0,fill:false,tension:.3,borderDash:[3,3]}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#64748b',font:{size:10}}},tooltip:{backgroundColor:'#0d1220',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',callbacks:{label:ctx=>'$'+ctx.parsed.y.toFixed(4)}}},scales:{x:{ticks:{color:'#475569',maxRotation:0,maxTicksLimit:8,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#475569',font:{size:10},callback:v=>'$'+v.toFixed(2)},grid:{color:'rgba(255,255,255,.04)'}}}}}
+  });
+}
+
+// ══════════════════════════════════════════════════
+// MATH
+// ══════════════════════════════════════════════════
+function genCandles(pair,n=120){
+  let p=BASE[pair]||100;
+  return Array.from({length:n},()=>{const c=(Math.random()-.48)*.015;p*=(1+c);return{open:p*(1-.002),high:p*(1+.008),low:p*(1-.008),close:p,volume:Math.random()*1000+200};});
+}
+function calcRSI(c,p=14){if(c.length<p+1)return 50;let g=0,l=0;for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}const rs=g/(l||.0001);return 100-100/(1+rs);}
+function calcEMA(c,p){if(c.length<p)return c[c.length-1]||0;const k=2/(p+1);let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;for(let i=p;i<c.length;i++)e=c[i]*k+e*(1-k);return e;}
+function calcMACD(c){const e12=calcEMA(c,12),e26=calcEMA(c,26),m=e12-e26;return{macd:m,signal:m*.9,histogram:m*.1};}
+function calcBB(c,p=20){if(c.length<p)return{upper:c[0],middle:c[0],lower:c[0]};const sl=c.slice(-p),mean=sl.reduce((a,b)=>a+b,0)/p,std=Math.sqrt(sl.reduce((a,b)=>a+Math.pow(b-mean,2),0)/p);return{upper:mean+2*std,middle:mean,lower:mean-2*std};}
+function calcATR(cs,p=14){const tr=cs.slice(1).map((c,i)=>Math.max(c.high-c.low,Math.abs(c.high-cs[i].close),Math.abs(c.low-cs[i].close)));return tr.slice(-p).reduce((a,b)=>a+b,0)/p;}
+function calcADX(cs,p=14){if(cs.length<p+1)return 22;let pdm=0,mdm=0,tr=0;for(let i=cs.length-p;i<cs.length;i++){const hi=cs[i].high-cs[i-1].high,lo=cs[i-1].low-cs[i].low;if(hi>lo&&hi>0)pdm+=hi;else if(lo>hi&&lo>0)mdm+=lo;tr+=Math.max(cs[i].high-cs[i].low,Math.abs(cs[i].high-cs[i-1].close),Math.abs(cs[i].low-cs[i-1].close));}const dip=(pdm/tr)*100,dim=(mdm/tr)*100;return Math.abs(dip-dim)/(dip+dim||1)*100;}
+function calcVol(c){if(c.length<2)return 30;const r=c.slice(1).map((v,i)=>Math.log(v/c[i])),mean=r.reduce((a,b)=>a+b,0)/r.length;return Math.sqrt(r.reduce((a,b)=>a+Math.pow(b-mean,2),0)/r.length)*Math.sqrt(365)*100;}
+
+// ══════════════════════════════════════════════════
+// REGIME DETECTION
+// ══════════════════════════════════════════════════
+function detectRegime(candles){
+  const closes=candles.map(c=>c.close);
+  const adx=calcADX(candles),vol=calcVol(closes);
+  const vols=candles.map(c=>c.volume);
+  const avgV=vols.slice(-50,-10).reduce((a,b)=>a+b,0)/40;
+  const recV=vols.slice(-5).reduce((a,b)=>a+b,0)/5;
+  const spike=recV/(avgV||1);
+  let regime,strategy,desc,color;
+  if(vol>80){regime='VOLATILE';strategy='⛔ انتظار — نوسان بسیار بالا';desc='بازار در وضعیت ناپایدار — Kill Switch توصیه می‌شود';color='var(--r)';}
+  else if(adx>25){regime='TREND';strategy='📈 Trend Following (EMA 9/21)';desc='بازار در روند قوی — دنباله‌روی روند بهترین انتخاب است';color='var(--c)';}
+  else if(spike>2&&adx<25){regime='BREAKOUT';strategy='💥 Breakout (Volume + BB)';desc='حجم غیرعادی در بازار رنج — احتمال شکست محدوده';color='var(--p)';}
+  else{regime='RANGE';strategy='🔄 Mean Reversion (Bollinger + RSI)';desc='بازار بدون روند — بازگشت به میانگین محتمل است';color='var(--y)';}
+  return{regime,strategy,desc,color,adx:adx.toFixed(1),volatility:vol.toFixed(1),volSpike:spike.toFixed(2)};
+}
+
+// ══════════════════════════════════════════════════
+// STRATEGY SIGNAL
+// ══════════════════════════════════════════════════
+function stratSignal(candles,regime){
+  const closes=candles.map(c=>c.close);
+  const price=closes[closes.length-1];
+  const rsi=calcRSI(closes),bb=calcBB(closes),ema9=calcEMA(closes,9),ema21=calcEMA(closes,21),macd=calcMACD(closes),atr=calcATR(candles);
+  let signal='HOLD',strength=35,reason='';
+  if(regime.regime==='TREND'){
+    if(ema9>ema21&&macd.histogram>0){signal='BUY';strength=72;reason='EMA9 بالای EMA21 + MACD صعودی → روند صعودی تأیید شد';}
+    else if(ema9<ema21&&macd.histogram<0){signal='SELL';strength=72;reason='EMA9 زیر EMA21 + MACD نزولی → روند نزولی تأیید شد';}
+    else{reason='تقاطع EMA هنوز تأیید نشده — منتظر کانفرم';}
+  }else if(regime.regime==='RANGE'){
+    if(price<=bb.lower*1.003&&rsi<33){signal='BUY';strength=76;reason='قیمت در باند پایین بولینگر + RSI اشباع فروش → بازگشت صعودی محتمل';}
+    else if(price>=bb.upper*.997&&rsi>67){signal='SELL';strength=76;reason='قیمت در باند بالای بولینگر + RSI اشباع خرید → اصلاح نزولی محتمل';}
+    else{reason='قیمت در میانه رنج — صبر برای کانر قوی‌تر';}
+  }else if(regime.regime==='BREAKOUT'){
+    if(price>bb.upper&&macd.histogram>0){signal='BUY';strength=80;reason='شکست BB Upper با حجم بالا → Breakout صعودی';}
+    else if(price<bb.lower&&macd.histogram<0){signal='SELL';strength=80;reason='شکست BB Lower با حجم بالا → Breakout نزولی';}
+    else{reason='منتظر تأیید شکست با حجم — احتمال Fakeout وجود دارد';}
+  }else{signal='HOLD';strength=15;reason='بازار ناپایدار — ریسک بسیار بالا';}
+  const slD=atr*1.5;
+  const entry=price;
+  const sl=signal==='BUY'?entry-slD:entry+slD;
+  const tp1=signal==='BUY'?entry+slD*2:entry-slD*2;
+  const tp2=signal==='BUY'?entry+slD*3:entry-slD*3;
+  const rr=(Math.abs(tp1-entry)/Math.abs(sl-entry)).toFixed(2);
+  const riskPct=parseInt(document.getElementById('riskSel')?.value||2);
+  const riskAmt=S.capital*riskPct/100;
+  const pos=(riskAmt/slD).toFixed(4);
+  const fee=(parseFloat(pos)*entry*.001).toFixed(2);
+  const expPct=(parseFloat(rr)*.55-.45).toFixed(2); // simplified expectancy
+  return{signal,strength,reason,entry,sl,tp1,tp2,rr,pos,fee,expPct,rsi,macd,ema9,ema21,bb,atr};
+}
+
+// ══════════════════════════════════════════════════
+// WHALE
+// ══════════════════════════════════════════════════
+function whaleAnal(candles){
+  const r=candles.slice(-20),avgV=candles.slice(-50,-20).reduce((a,b)=>a+b.volume,0)/30;
+  const rV=r.reduce((a,b)=>a+b.volume,0)/20,spike=rV/(avgV||1);
+  const bull=r.filter(c=>c.close>c.open&&(c.close-c.open)/c.open>.01).length;
+  const bear=r.filter(c=>c.close<c.open&&(c.open-c.close)/c.open>.01).length;
+  let sig='NEUTRAL',conf=45,desc='';
+  if(spike>2.5&&bull>bear){sig='ACCUMULATION';conf=Math.min(85,50+spike*10);desc='📈 حجم '+spike.toFixed(1)+'× میانگین + کندل‌های صعودی بزرگ → نهنگ‌ها در حال خرید';}
+  else if(spike>2.5&&bear>bull){sig='DISTRIBUTION';conf=Math.min(85,50+spike*10);desc='📉 حجم '+spike.toFixed(1)+'× + کندل نزولی → نهنگ‌ها در حال فروش';}
+  else if(spike<.5){sig='STEALTH';conf=60;desc='🤫 حجم خیلی پایین → احتمال تجمیع آرام (Accumulation مخفی)';}
+  else{desc='⚖️ حجم معمولی — فعالیت نهنگ مشخص نیست';}
+  return{sig,conf:conf.toFixed(0),spike:spike.toFixed(2),desc,bull,bear};
+}
+
+// ══════════════════════════════════════════════════
+// SENTIMENT
+// ══════════════════════════════════════════════════
+function getSent(){
+  const fg=Math.floor(Math.random()*60+22);
+  const ls=['ترس شدید','ترس','خنثی','طمع','طمع شدید'];
+  const li=fg<25?0:fg<45?1:fg<55?2:fg<75?3:4;
+  return{fg,label:ls[li],score:Math.floor(Math.random()*40+42),overall:fg>57?'Bullish 📈':fg<40?'Bearish 📉':'Neutral ⚖️',social:Math.floor(Math.random()*50000+12000),news:Math.random()>.5?'📰 اخبار مثبت در ۲۴ ساعت اخیر':'📭 بدون اخبار مهم فعلاً'};
+}
+
+// ══════════════════════════════════════════════════
+// AI ANALYSIS
+// ══════════════════════════════════════════════════
+async function runAI(silent=false){
+  if(S.killSwitch){toast('⛔ Kill Switch فعاله — تحلیل متوقف','red');return;}
+  const pair=document.getElementById('pairSel').value;
+  const btn=document.getElementById('aBtn');
+  if(!silent){btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال تحلیل...';}
+  log(`🔍 شروع تحلیل ${pair}...`,'info');
+  const candles=genCandles(pair,120);
+  const regime=detectRegime(candles);
+  const strat=stratSignal(candles,regime);
+  const whale=whaleAnal(candles);
+  const sent=getSent();
+
+  const prompt=`تریدر حرفه‌ای هستی. داده‌های زیر رو تحلیل کن:
+جفت: ${pair} | رژیم: ${regime.regime} | ADX: ${regime.adx} | نوسان: ${regime.volatility}%
+استراتژی: ${regime.strategy} | سیگنال: ${strat.signal} (قدرت: ${strat.strength}%) | دلیل: ${strat.reason}
+RSI: ${strat.rsi.toFixed(1)} | MACD Hist: ${strat.macd.histogram.toFixed(5)} | EMA9: ${strat.ema9.toFixed(4)} | EMA21: ${strat.ema21.toFixed(4)}
+BB Lower: ${strat.bb.lower.toFixed(4)} | BB Upper: ${strat.bb.upper.toFixed(4)} | ATR: ${strat.atr.toFixed(4)}
+نهنگ: ${whale.sig} (${whale.conf}%) | Sentiment: ${sent.overall} | Fear&Greed: ${sent.fg} (${sent.label})
+R:R: ${strat.rr} | کارمزد: $${strat.fee} | Expectancy: ${strat.expPct}
+پاسخ فقط JSON خالص (بدون markdown):
+{"action":"BUY یا SELL یا HOLD","confidence":عدد,"reasoning":"۲ جمله فارسی","keyRisk":"ریسک اصلی فارسی","scores":{"technical":عدد,"whale":عدد,"sentiment":عدد,"overall":عدد}}`;
+
+  let ai;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    ai=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
+  }catch(e){
+    ai={action:strat.signal,confidence:strat.strength,reasoning:strat.reason,keyRisk:'خطا در اتصال AI — از سیگنال تکنیکال استفاده شد',scores:{technical:strat.strength,whale:parseInt(whale.conf),sentiment:sent.score,overall:Math.round((strat.strength+parseInt(whale.conf)+sent.score)/3)}};
+  }
+
+  S.currentAI={pair,regime,strat,whale,sent,ai};
+  if(!silent) renderDash(S.currentAI);
+  if(!silent){btn.disabled=false;btn.textContent='🤖 تحلیل هوش مصنوعی';}
+  log(`🤖 AI: ${ai.action} ${pair} | اطمینان: ${ai.confidence}% | رژیم: ${regime.regime}`,'ai');
+  if(S.autoTrade&&ai.action!=='HOLD'&&ai.confidence>=68&&!silent) execTrade();
+  checkKS(parseFloat(regime.volatility));
+  if(!silent) toast(`${ai.action} ${pair} — اطمینان ${ai.confidence}%`,ai.action==='BUY'?'green':ai.action==='SELL'?'red':'gray');
+}
+
+// ══════════════════════════════════════════════════
+// RENDER DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDash(d){
+  document.getElementById('emptyDash').style.display='none';
+  ['regCard','decCard','whaleSentRow','techCard','scoreCard'].forEach(id=>{document.getElementById(id).style.display='block';});
+
+  // Regime
+  document.getElementById('regBig').textContent=d.regime.regime;
+  document.getElementById('regBig').style.color=d.regime.color;
+  document.getElementById('regStrat').textContent=d.regime.strategy;
+  document.getElementById('regDesc').textContent=d.regime.desc;
+  document.getElementById('adxV').textContent=d.regime.adx;
+  document.getElementById('adxV').style.color=parseFloat(d.regime.adx)>25?'var(--c)':'var(--y)';
+  document.getElementById('volV').textContent=d.regime.volatility+'%';
+  document.getElementById('volV').style.color=parseFloat(d.regime.volatility)>60?'var(--r)':'var(--g)';
+  document.getElementById('vspikeV').textContent=d.regime.volSpike+'×';
+  document.getElementById('vspikeV').style.color=parseFloat(d.regime.volSpike)>2?'var(--y)':'var(--m)';
+
+  // Decision
+  const ac={BUY:'var(--g)',SELL:'var(--r)',HOLD:'var(--m)'};
+  const dbox=document.getElementById('dbox');
+  dbox.style.background=d.ai.action==='BUY'?'rgba(16,185,129,.07)':d.ai.action==='SELL'?'rgba(244,63,94,.07)':'rgba(100,116,139,.05)';
+  document.getElementById('dact').textContent=d.ai.action;
+  document.getElementById('dact').style.color=ac[d.ai.action];
+  document.getElementById('confBar').style.width=d.ai.confidence+'%';
+  document.getElementById('confBar').style.background=ac[d.ai.action];
+  document.getElementById('confPct').textContent=d.ai.confidence+'%';
+  document.getElementById('aiReas').textContent=d.ai.reasoning;
+  document.getElementById('aiRisk').textContent='⚠️ ریسک: '+d.ai.keyRisk;
+  document.getElementById('tEntry').textContent='$'+d.strat.entry.toFixed(4);
+  document.getElementById('tSL').textContent='$'+d.strat.sl.toFixed(4);
+  document.getElementById('tTP1').textContent='$'+d.strat.tp1.toFixed(4);
+  document.getElementById('tTP2').textContent='$'+d.strat.tp2.toFixed(4);
+  document.getElementById('rrV').textContent='1:'+d.strat.rr;
+  document.getElementById('rrV').style.color=parseFloat(d.strat.rr)>=2?'var(--g)':'var(--y)';
+  document.getElementById('posV').textContent=d.strat.pos+' واحد';
+  document.getElementById('feeV').textContent='$'+d.strat.fee;
+  document.getElementById('expV').textContent=d.strat.expPct;
+  document.getElementById('expV').style.color=parseFloat(d.strat.expPct)>0?'var(--g)':'var(--r)';
+  const eb=document.getElementById('execBtn');
+  if(d.ai.action!=='HOLD'&&!S.killSwitch){eb.style.display='block';eb.style.background=ac[d.ai.action];}
+  else eb.style.display='none';
+
+  // Whale
+  const wc={ACCUMULATION:'var(--g)',DISTRIBUTION:'var(--r)',STEALTH:'var(--y)',NEUTRAL:'var(--m)'};
+  document.getElementById('whaleC').innerHTML=`
+    <div style="display:inline-block;padding:4px 11px;border-radius:6px;font-size:11px;font-weight:700;color:${wc[d.whale.sig]};background:rgba(255,255,255,.05);margin-bottom:9px">${d.whale.sig}</div>
+    <p style="font-size:11px;color:var(--m);line-height:1.7;margin-bottom:9px">${d.whale.desc}</p>
+    <div style="display:flex;gap:7px">
+      <div style="flex:1;background:var(--s2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--m)">Volume Spike</div><div style="font-size:17px;font-weight:800;color:${parseFloat(d.whale.spike)>1.5?'var(--y)':'#fff'};margin-top:2px">${d.whale.spike}×</div></div>
+      <div style="flex:1;background:var(--s2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--m)">اطمینان</div><div style="font-size:17px;font-weight:800;color:var(--bl);margin-top:2px">${d.whale.conf}%</div></div>
+      <div style="flex:1;background:var(--s2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--m)">Bull/Bear</div><div style="font-size:13px;font-weight:700;margin-top:4px"><span style="color:var(--g)">${d.whale.bull}⬆</span> <span style="color:var(--r)">${d.whale.bear}⬇</span></div></div>
+    </div>`;
+
+  // Sentiment
+  document.getElementById('sentC').innerHTML=`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px"><span style="color:var(--m)">Fear & Greed</span><span style="font-weight:600">${d.sent.fg} — ${d.sent.label}</span></div>
+      <div class="pb"><div class="pf" style="width:${d.sent.fg}%;background:hsl(${d.sent.fg*1.2},75%,50%)"></div></div>
+    </div>
+    <div class="sr"><span class="sl">احساسات کلی</span><span>${d.sent.overall}</span></div>
+    <div class="sr"><span class="sl">حجم اجتماعی</span><span>${d.sent.social.toLocaleString()}</span></div>
+    <div class="sr" style="border:none"><span class="sl">اخبار</span><span style="font-size:11px">${d.sent.news}</span></div>`;
+
+  // Technical
+  const ti=[['RSI(14)',d.strat.rsi.toFixed(1),d.strat.rsi<30?'var(--g)':d.strat.rsi>70?'var(--r)':'var(--y)'],['MACD Hist',d.strat.macd.histogram.toFixed(5),d.strat.macd.histogram>0?'var(--g)':'var(--r)'],['EMA 9','$'+d.strat.ema9.toFixed(4),'#fff'],['EMA 21','$'+d.strat.ema21.toFixed(4),'#fff'],['BB Upper','$'+d.strat.bb.upper.toFixed(4),'var(--m)'],['BB Lower','$'+d.strat.bb.lower.toFixed(4),'var(--m)'],['ATR(14)','$'+d.strat.atr.toFixed(4),'var(--y)'],['Volatility',d.regime.volatility+'%',parseFloat(d.regime.volatility)>60?'var(--r)':'var(--m)']];
+  document.getElementById('techGrid').innerHTML=ti.map(([l,v,c])=>`<div style="background:var(--s2);border-radius:8px;padding:8px 10px"><div style="font-size:9px;color:var(--m);margin-bottom:2px">${l}</div><div style="font-weight:700;font-size:12px;color:${c}">${v}</div></div>`).join('');
+
+  // Scores
+  const si=[['تکنیکال 📈',d.ai.scores?.technical||0],['نهنگ 🐋',d.ai.scores?.whale||0],['سنتیمنت 📰',d.ai.scores?.sentiment||0],['کل ⭐',d.ai.scores?.overall||0]];
+  document.getElementById('scoreGrid').innerHTML=si.map(([l,v])=>`<div style="text-align:center"><div style="font-size:10px;color:var(--m);margin-bottom:5px">${l}</div><div class="pb"><div class="pf" style="width:${v}%;background:${v>65?'var(--g)':v>40?'var(--y)':'var(--r)'}"></div></div><div style="font-size:16px;font-weight:800;margin-top:4px;color:${v>65?'var(--g)':v>40?'var(--y)':'var(--r)'}">${v}</div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// EXECUTE TRADE
+// ══════════════════════════════════════════════════
+function execTrade(){
+  if(!S.currentAI||S.killSwitch)return;
+  const{pair,strat,ai}=S.currentAI;
+  const t={id:Date.now(),pair,action:ai.action,entry:strat.entry,sl:strat.sl,tp1:strat.tp1,tp2:strat.tp2,pos:strat.pos,fee:strat.fee,conf:ai.confidence,time:new Date().toLocaleTimeString('fa-IR'),status:'OPEN',pnl:0};
+  S.trades.unshift(t);
+  document.getElementById('execBtn').style.display='none';
+  log(`⚡ ${ai.action} ${pair} @ $${strat.entry.toFixed(4)} | SL:$${strat.sl.toFixed(4)} | TP1:$${strat.tp1.toFixed(4)}`,'success');
+  toast(`⚡ سفارش ${ai.action} ${pair} ثبت شد`,'green');
+  setTimeout(()=>closeTrade(t.id),9000+Math.random()*15000);
+}
+
+function closeTrade(id){
+  const t=S.trades.find(x=>x.id===id);
+  if(!t||t.status!=='OPEN')return;
+  const win=Math.random()>.40;
+  const pnl=win?(t.action==='BUY'?(t.tp1-t.entry):(t.entry-t.tp1))*parseFloat(t.pos):(t.action==='BUY'?(t.sl-t.entry):(t.entry-t.sl))*parseFloat(t.pos);
+  t.pnl=parseFloat((pnl-parseFloat(t.fee)).toFixed(2));
+  t.status=win?'✅ TP1':'🛑 SL';
+  if(t.pnl<0)S.consLoss++; else S.consLoss=0;
+  S.capital+=t.pnl;
+  S.dailyLoss+=Math.min(0,t.pnl);
+  S.pnlHistory.push(parseFloat(S.capital.toFixed(2)));
+  log(`${win?'✅ TP1':'🛑 SL'} ${t.pair} | P&L: ${t.pnl>0?'+':''}$${t.pnl}`,'success');
+  toast(`${win?'✅':'🛑'} ${t.pair} — P&L: ${t.pnl>0?'+':''}$${t.pnl}`,win?'green':'red');
+  checkKS();
+  if(currentTab==='portfolio')renderPortfolio();
+}
+
+// ══════════════════════════════════════════════════
+// SCANNER
+// ══════════════════════════════════════════════════
+async function runScan(){
+  const btn=document.getElementById('scanBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> اسکن...';
+  log('🔭 اسکن همه بازارها...','info');
+  const res=[];
+  for(const p of PAIRS){
+    const candles=genCandles(p,120),closes=candles.map(c=>c.close);
+    const regime=detectRegime(candles),strat=stratSignal(candles,regime),whale=whaleAnal(candles),sent=getSent();
+    const score=Math.round(strat.strength*.35+parseInt(whale.conf)*.35+sent.score*.3);
+    res.push({pair:p,price:closes[closes.length-1],regime:regime.regime,regColor:regime.color,signal:strat.signal,strength:strat.strength,whale:whale.sig,rsi:strat.rsi.toFixed(1),rr:strat.rr,score,exp:strat.expPct});
+  }
+  res.sort((a,b)=>b.score-a.score);
+  const el=document.getElementById('scanRes');el.innerHTML='';
+  res.forEach(r=>{
+    const ac={BUY:'var(--g)',SELL:'var(--r)',HOLD:'var(--m)'};
+    el.innerHTML+=`<div class="srow" onclick="selectAndAnalyze('${r.pair}')">
+      <div style="min-width:90px"><div style="font-weight:700;font-size:12px">${r.pair}</div><div style="font-size:10px;color:var(--m)">$${r.price.toFixed(4)}</div></div>
+      <span class="ab ${r.signal}">${r.signal}</span>
+      <div style="font-size:10px;color:${r.regColor};min-width:65px;font-weight:600">${r.regime}</div>
+      <div style="flex:1;font-size:11px;display:flex;gap:12px;flex-wrap:wrap">
+        <span style="color:var(--m)">RSI: <b style="color:${parseFloat(r.rsi)<30?'var(--g)':parseFloat(r.rsi)>70?'var(--r)':'#fff'}">${r.rsi}</b></span>
+        <span style="color:var(--m)">R:R: <b style="color:${parseFloat(r.rr)>=2?'var(--g)':'var(--y)'}">1:${r.rr}</b></span>
+        <span style="color:var(--m)">Exp: <b style="color:${parseFloat(r.exp)>0?'var(--g)':'var(--r)'}">${r.exp}</b></span>
+        <span style="color:var(--m)">🐋 <b>${r.whale}</b></span>
+      </div>
+      <div style="text-align:center;min-width:50px"><div style="font-size:18px;font-weight:900;color:${r.score>65?'var(--g)':r.score<40?'var(--r)':'var(--y)'}">${r.score}</div><div style="font-size:9px;color:var(--m)">امتیاز</div></div>
+    </div>`;
+  });
+  btn.disabled=false;btn.textContent='اسکن همه ارزها';
+  log(`✅ اسکن کامل — ${res.filter(r=>r.signal==='BUY').length} BUY | ${res.filter(r=>r.signal==='SELL').length} SELL`,'success');
+}
+function selectAndAnalyze(pair){document.getElementById('pairSel').value=pair;show('dash');onPair();runAI();}
+
+// ══════════════════════════════════════════════════
+// BACKTEST
+// ══════════════════════════════════════════════════
+async function runBacktest(){
+  const btn=document.getElementById('btBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال Backtest...';
+  log('🧪 Backtest شروع شد...','info');
+  const pair=document.getElementById('btPair').value;
+  const stratType=document.getElementById('btStrat').value;
+  const n=parseInt(document.getElementById('btPeriod').value);
+  const candles=genCandles(pair,n+50);
+  let cap=1000,wins=0,losses=0,tds=[],equity=[1000],maxDD=0,peak=1000,totalFee=0;
+  for(let i=50;i<candles.length-1;i++){
+    const slice=candles.slice(0,i+1);
+    const closes=slice.map(c=>c.close);
+    const rsi=calcRSI(closes),bb=calcBB(closes),ema9=calcEMA(closes,9),ema21=calcEMA(closes,21),macd=calcMACD(closes),atr=calcATR(slice);
+    const regime=detectRegime(slice);
+    let signal='HOLD';
+    const eff=stratType==='auto'?regime.regime:stratType==='trend'?'TREND':stratType==='reversion'?'RANGE':'BREAKOUT';
+    const price=closes[closes.length-1];
+    if(eff==='TREND'){if(ema9>ema21&&macd.histogram>0)signal='BUY';else if(ema9<ema21&&macd.histogram<0)signal='SELL';}
+    else if(eff==='RANGE'){if(price<=bb.lower*1.003&&rsi<33)signal='BUY';else if(price>=bb.upper*.997&&rsi>67)signal='SELL';}
+    else if(eff==='BREAKOUT'){if(price>bb.upper&&macd.histogram>0)signal='BUY';else if(price<bb.lower&&macd.histogram<0)signal='SELL';}
+    if(signal!=='HOLD'&&Math.random()>.3){
+      const slD=atr*1.5,entry=price;
+      const sl=signal==='BUY'?entry-slD:entry+slD;
+      const tp1=signal==='BUY'?entry+slD*2:entry-slD*2;
+      const riskAmt=cap*.02;
+      const pos=riskAmt/slD;
+      const fee=pos*entry*.001;
+      totalFee+=fee;
+      const next=candles[i+1];
+      const win=signal==='BUY'?next.close>entry:next.close<entry;
+      const pnl=win?(Math.abs(tp1-entry)*pos):(Math.abs(sl-entry)*pos*-1);
+      const net=pnl-fee;
+      cap+=net;
+      if(win)wins++;else losses++;
+      if(cap>peak)peak=cap;
+      const dd=(peak-cap)/peak*100;
+      if(dd>maxDD)maxDD=dd;
+      equity.push(parseFloat(cap.toFixed(2)));
+      if(tds.length<20)tds.unshift({signal,entry:entry.toFixed(4),pnl:net.toFixed(2),win,time:'کندل '+i});
+    }
+  }
+  const total=wins+losses;
+  const wr=total?((wins/total)*100).toFixed(1):0;
+  const ret=((cap-1000)/1000*100).toFixed(1);
+  const avgWin=(total?(wins*2/total):0).toFixed(2);
+  const avgLoss=(total?(losses*1/total):0).toFixed(2);
+  const exp=total?(parseFloat(wr)/100*parseFloat(avgWin)-(1-parseFloat(wr)/100)*parseFloat(avgLoss)).toFixed(3):0;
+
+  document.getElementById('btResult').style.display='block';
+  const sc={BG1:parseFloat(ret)>0?'rgba(16,185,129,.1)':'rgba(244,63,94,.1)',C1:parseFloat(ret)>0?'var(--g)':'var(--r)'};
+  document.getElementById('btStats').innerHTML=`
+    <div class="bt-stat"><div class="l">بازده کل</div><div class="v" style="color:${sc.C1}">${ret>0?'+':''}${ret}%</div></div>
+    <div class="bt-stat"><div class="l">Win Rate</div><div class="v" style="color:${parseFloat(wr)>50?'var(--g)':'var(--r)'}">${wr}%</div></div>
+    <div class="bt-stat"><div class="l">Max Drawdown</div><div class="v" style="color:var(--r)">-${maxDD.toFixed(1)}%</div></div>
+    <div class="bt-stat"><div class="l">Expectancy</div><div class="v" style="color:${parseFloat(exp)>0?'var(--g)':'var(--r)'}">${exp}</div></div>
+    <div class="bt-stat"><div class="l">تعداد معاملات</div><div class="v">${total}</div></div>
+    <div class="bt-stat"><div class="l">کارمزد کل</div><div class="v" style="color:var(--r)">$${totalFee.toFixed(2)}</div></div>
+    <div class="bt-stat"><div class="l">سرمایه نهایی</div><div class="v" style="color:${cap>1000?'var(--g)':'var(--r)'}">$${cap.toFixed(2)}</div></div>
+    <div class="bt-stat"><div class="l">برد / باخت</div><div class="v"><span style="color:var(--g)">${wins}</span>/<span style="color:var(--r)">${losses}</span></div></div>`;
+
+  if(btChartInst)btChartInst.destroy();
+  btChartInst=new Chart(document.getElementById('btChart'),{
+    type:'line',
+    data:{labels:equity.map((_,i)=>'T'+i),datasets:[{label:'Equity',data:equity,borderColor:'#10b981',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:'rgba(16,185,129,.07)',tension:.3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:'#475569',font:{size:10},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  document.getElementById('btTrades').innerHTML=tds.map(t=>`<div style="display:flex;gap:10px;padding:7px 10px;background:var(--s2);border-radius:7px;margin-bottom:5px;font-size:11px;align-items:center">
+    <span class="ab ${t.signal}" style="font-size:10px;padding:2px 8px">${t.signal}</span>
+    <span style="color:var(--m)">ورود: <b>$${t.entry}</b></span>
+    <span style="font-weight:700;color:${parseFloat(t.pnl)>0?'var(--g)':'var(--r)'};margin-right:auto">${parseFloat(t.pnl)>0?'+':''}$${t.pnl}</span>
+    <span style="font-size:10px">${t.win?'✅':'🛑'}</span>
+  </div>`).join('');
+
+  btn.disabled=false;btn.textContent='🧪 اجرای Backtest';
+  log(`✅ Backtest: بازده ${ret}% | Win Rate ${wr}% | Expectancy ${exp}`,'success');
+}
+
+// ══════════════════════════════════════════════════
+// PORTFOLIO
+// ══════════════════════════════════════════════════
+function renderPortfolio(){
+  const pnl=S.trades.reduce((a,t)=>a+t.pnl,0);
+  const wins=S.trades.filter(t=>t.pnl>0).length;
+  const total=S.trades.filter(t=>t.pnl!==0).length;
+  const wr=total?(wins/total*100).toFixed(1):0;
+  const maxPnl=Math.max(...S.trades.map(t=>t.pnl),0);
+  const minPnl=Math.min(...S.trades.map(t=>t.pnl),0);
+  document.getElementById('portStats').innerHTML=`
+    <div class="port-stat"><div class="l">موجودی</div><div class="v" style="color:var(--g)">$${S.capital.toFixed(2)}</div></div>
+    <div class="port-stat"><div class="l">کل P&L</div><div class="v" style="color:${pnl>=0?'var(--g)':'var(--r)'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</div></div>
+    <div class="port-stat"><div class="l">Win Rate</div><div class="v" style="color:${parseFloat(wr)>50?'var(--g)':'var(--r)'}">${wr}%</div></div>
+    <div class="port-stat"><div class="l">معاملات</div><div class="v">${total}</div></div>`;
+
+  // PnL chart
+  if(pnlChartInst)pnlChartInst.destroy();
+  pnlChartInst=new Chart(document.getElementById('pnlChart'),{
+    type:'line',
+    data:{labels:S.pnlHistory.map((_,i)=>i===0?'شروع':'T'+i),datasets:[{label:'سرمایه',data:S.pnlHistory,borderColor:'#3b82f6',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:'rgba(59,130,246,.07)',tension:.3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:'#475569',font:{size:10},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+
+  document.getElementById('portDetail').innerHTML=`
+    <div class="sr"><span class="sl">بهترین معامله</span><span style="color:var(--g)">+$${maxPnl.toFixed(2)}</span></div>
+    <div class="sr"><span class="sl">بدترین معامله</span><span style="color:var(--r)">$${minPnl.toFixed(2)}</span></div>
+    <div class="sr"><span class="sl">ضررهای متوالی</span><span style="color:${S.consLoss>=2?'var(--r)':'var(--m)'}">${S.consLoss}</span></div>
+    <div class="sr"><span class="sl">ضرر روزانه</span><span style="color:var(--r)">$${Math.abs(S.dailyLoss).toFixed(2)}</span></div>
+    <div class="sr"><span class="sl">Kill Switch</span><span style="color:${S.killSwitch?'var(--r)':'var(--g)'}">${S.killSwitch?'⛔ فعال':'✅ غیرفعال'}</span></div>`;
+
+  document.getElementById('tradeList').innerHTML=S.trades.length===0?
+    '<div style="text-align:center;padding:30px;color:var(--m)">هنوز معامله‌ای ثبت نشده</div>':
+    S.trades.map(t=>`<div class="trow2">
+      <div style="min-width:85px"><div style="font-weight:700;font-size:11px">${t.pair}</div><div style="font-size:10px;color:var(--m)">${t.time}</div></div>
+      <span class="ab ${t.action}" style="font-size:10px;padding:3px 9px">${t.action}</span>
+      <div style="flex:1;font-size:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <span style="color:var(--m)">ورود: <b>$${t.entry.toFixed(4)}</b></span>
+        <span style="color:var(--m)">SL: <b style="color:var(--r)">$${t.sl.toFixed(4)}</b></span>
+      </div>
+      <div style="font-weight:700;font-size:12px;color:${t.pnl>0?'var(--g)':t.pnl<0?'var(--r)':'var(--m)'};min-width:55px;text-align:center">${t.pnl!==0?(t.pnl>0?'+':'')+'$'+t.pnl:'—'}</div>
+      <div style="font-size:10px;color:var(--m)">${t.status}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// KILL SWITCH
+// ══════════════════════════════════════════════════
+function checkKS(vol=0){
+  const v=vol||parseFloat(S.currentAI?.regime?.volatility||0);
+  if(!S.killSwitch&&(S.consLoss>=3||Math.abs(S.dailyLoss)>S.capital*.06||v>85)){
+    S.killSwitch=true;
+    document.getElementById('ksbtn').classList.add('active');
+    document.getElementById('killBadge').style.display='inline';
+    log('⛔ KILL SWITCH فعال شد — ترید خودکار متوقف!','danger');
+    toast('⛔ Kill Switch فعال شد!','red');
+    S.autoTrade=false;
+    document.getElementById('autoTog').classList.remove('on');
+    document.getElementById('autoLabel').style.color='var(--m)';
+  }
+  updateKSDisplay();
+}
+function toggleKS(){
+  S.killSwitch=!S.killSwitch;
+  if(!S.killSwitch){S.consLoss=0;S.dailyLoss=0;}
+  document.getElementById('ksbtn').classList.toggle('active',S.killSwitch);
+  document.getElementById('killBadge').style.display=S.killSwitch?'inline':'none';
+  log(S.killSwitch?'⛔ Kill Switch دستی فعال':'✅ Kill Switch غیرفعال شد',S.killSwitch?'danger':'success');
+  toast(S.killSwitch?'⛔ Kill Switch فعال شد':'✅ Kill Switch خاموش شد',S.killSwitch?'red':'green');
+  updateKSDisplay();
+}
+function updateKSDisplay(){
+  const dl=Math.abs(S.dailyLoss/Math.max(S.capital,1)*100).toFixed(1);
+  const v=S.currentAI?parseFloat(S.currentAI.regime.volatility):0;
+  const cEl=document.getElementById('ksC'),dEl=document.getElementById('ksD'),vEl=document.getElementById('ksVol'),oEl=document.getElementById('ksOv');
+  if(cEl){cEl.textContent=S.consLoss+' / 3';cEl.style.color=S.consLoss>=3?'var(--r)':S.consLoss>=2?'var(--y)':'var(--g)';}
+  if(dEl){dEl.textContent=dl+'%';dEl.style.color=parseFloat(dl)>=6?'var(--r)':parseFloat(dl)>=4?'var(--y)':'var(--g)';}
+  if(vEl){vEl.textContent=v>85?'خطرناک ⚠️':v>60?'بالا':'عادی';vEl.style.color=v>85?'var(--r)':v>60?'var(--y)':'var(--g)';}
+  if(oEl){oEl.textContent=S.killSwitch?'⛔ KILL SWITCH':'✅ ایمن';oEl.style.color=S.killSwitch?'var(--r)':'var(--g)';}
+  const rp=document.getElementById('rp1');if(rp)rp.textContent=(document.getElementById('riskSel')?.value||2)+'٪ سرمایه';
+}
+function toggleAuto(){
+  if(S.killSwitch){toast('⛔ ابتدا Kill Switch رو خاموش کن','red');return;}
+  S.autoTrade=!S.autoTrade;
+  document.getElementById('autoTog').classList.toggle('on',S.autoTrade);
+  document.getElementById('autoLabel').style.color=S.autoTrade?'var(--g)':'var(--m)';
+  log(S.autoTrade?'🤖 ترید خودکار فعال شد':'⏸ ترید خودکار متوقف شد',S.autoTrade?'success':'warn');
+}
+
+// ══════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════
+function show(id){
+  currentTab=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  const map={dash:0,scanner:1,backtest:2,portfolio:3,strategy:4,risk:5,logs:6};
+  document.querySelectorAll('.tab')[map[id]]?.classList.add('on');
+  if(id==='portfolio')renderPortfolio();
+  if(id==='risk')updateKSDisplay();
+}
+
+// ══════════════════════════════════════════════════
+// LOG & TOAST
+// ══════════════════════════════════════════════════
+function log(msg,type='info'){
+  const box=document.getElementById('logBox');
+  const t=new Date().toLocaleTimeString('fa-IR');
+  const colors={info:'var(--m)',success:'var(--g)',danger:'var(--r)',warn:'var(--y)',ai:'var(--p)'};
+  const d=document.createElement('div');d.className='le';
+  d.innerHTML=`<span class="lt">[${t}]</span><span style="color:${colors[type]||'var(--m)'}">${msg}</span>`;
+  box.insertBefore(d,box.firstChild);
+  if(box.children.length>80)box.removeChild(box.lastChild);
+}
+function toast(msg,color='gray'){
+  const colors={green:'var(--g)',red:'var(--r)',gray:'var(--m)'};
+  const box=document.getElementById('toast');
+  const d=document.createElement('div');d.className='toast-msg';d.style.color=colors[color];d.textContent=msg;
+  box.appendChild(d);
+  setTimeout(()=>d.remove(),3200);
+}
+</script>
+</body>
+</html>
